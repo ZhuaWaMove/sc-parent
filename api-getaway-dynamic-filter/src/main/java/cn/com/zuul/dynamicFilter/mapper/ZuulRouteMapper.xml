@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mircoservice.mapper.ZuulRouteMapper">
+<resultMap id="BaseResultMap" type="com.mircoservice.model.ZuulRouteVo">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="path" property="path" jdbcType="VARCHAR" />
+		<result column="service_id" property="serviceId" jdbcType="VARCHAR" />
+		<result column="url" property="url" jdbcType="VARCHAR" />
+		<result column="strip_prefix" property="stripPrefix" jdbcType="BOOLEAN" />
+		<result column="retryable" property="retryable" jdbcType="BOOLEAN" />
+		<result column="enable" property="enable" jdbcType="BOOLEAN" />
+		<result column="api_name" property="apiName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<select id ="getZuulRouteVos" resultMap="BaseResultMap">
+		select id,path,service_id,url,strip_prefix,retryable,enable,api_name from gateway_route
+	</select>
+
+		<select id ="getZuulRouteVo" resultMap="BaseResultMap" parameterType="java.lang.String">
+		select id,path,service_id,url,strip_prefix,retryable,enable,api_name from gateway_route where api_name=#{apiName}
+		</select>
+		
+		
+		<!-- 通过服务名称 和接收到的数据 进行更改 -->
+	<update id="updateZuulRouteVo">
+		update gateway_route
+		<set>
+			<if test="path!=null">path=#{path}</if>
+		</set>
+		where api_name=#{apiName}
+	</update>
+	
+	<insert id="addZuulRouteVo" parameterType="com.mircoservice.model.ZuulRouteVo">
+		insert into gateway_route (path,service_id,strip_prefix,retryable,enable,api_name) values(#{path},#{serviceId},
+			#{stripPrefix},#{retryable},#{enable},#{apiName})
+	</insert>
+	
+	<delete id="deleteZuulRouteVo" parameterType="java.lang.String">
+	delete from gateway_route where service_id=#{serviceId}
+	</delete>
+</mapper>

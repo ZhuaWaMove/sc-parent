@@ -1,0 +1,103 @@
+server.port: 7004
+zuul:
+  filter:
+    root: E:\PSBworkspace\sc-parent\api-getaway-dynamic-filter\src\main\java\filter #指定动态加载过滤器存储路径；
+    interval: 5 #配置动态加载的间隔时间 以秒为单位。
+  host:
+    max-total-connections: 50 #客户端最大连接数 默认20
+    max-per-route-connections: 20 #节点路由的最大连接数
+  semaphore:  #全局配置
+    max-semaphores: 10 #当请求达到或超过该设置值后，其余就会被拒绝。默认值是100。
+  eureka:  #针对后端服务配置
+    hello-service: #后端服务id  hello-service  service_id 针对不同服务设置不同的信号量
+      semaphore:
+        maxSemaphores: 50  # 建议使用这种方式来设置，可以给每个不同的后端微服务设置不同的信号量
+  ratelimit:
+      #key-prefix: my-retelimit  #限流配置名称
+      enabled: true #启用网关限流
+      repository: IN_MEMORY  #统计数据存储类型 大写  默认 使用内存
+      behind-proxy: true
+      default-policy:
+        limit: 50
+        quota: 100
+        refresh-interval: 3
+      policies:
+        hello-service: #限流配置名称
+          limit: 100 #单位时间年内允许访问次数
+          quota: 1000 #单位时间内允许访问的总时间(统计每次的请求时间综合)
+          refresh-interval: 3 #设置单位时间
+          type: URL  #限流粒度(类型)   60s内请求超过三次，服务端就抛出异常，一分钟后又可以正常请求
+        trace-1: #限流配置名称
+          limit: 100 #单位时间年内允许访问次数
+          quota: 1000 #单位时间内允许访问的总时间(统计每次的请求时间综合)
+          refresh-interval: 60 #设置单位时间
+          type: URL  #限流粒度(类型)   60s内请求超过三次，服务端就抛出异常，一分钟后又可以正常请求
+        trace-2:
+          limit: 100 #单位时间年内允许访问次数
+          quota:  1000 #单位时间内允许访问的总时间(统计每次的请求时间综合)
+          refresh-interval: 60 #设置单位时间
+          type: URL  #限流粒度(类型)   60s内请求超过三次，服务端就抛出异常，一分钟后又可以正常请求
+#  custratelimit:
+#    sys-code: 123456
+#    sys-limit-flag: true
+#    sys-limit-count: 120
+#    sys-refresh-time: 1
+#    sys-max-quota: 120
+#    service-pre-limit-flag: true
+#    max-use-rate-c-p-u: 90
+#    max-use-rate-memory: 80
+
+hystrix:
+  command:
+    hello-service: #也可以使用service_id 针对不同的服务 设置不同的
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 60000 #设置thread和semaphore两种隔离策略的超时时间，默认值是1000。
+spring:
+  cloud:
+    config:
+      profile: dev  #将配置放在这里才能加载配种中心的配置信息。
+      label: config-lable-test
+      uri: http://glshala.ngrok.xiaomiqiu.cn/  #http://localhost:7001/  #配置服务中心config-server
+      username: admin  #config 链接到配置中心 所需要的用户名 和密码
+      password: admin
+      fail-fast: true #失败快速响应  优先判断配置中心是否连接正常，并响应。
+      #特别注意：上面这些与spring-cloud相关的属性必须配置在bootstrap.properties中，config部分内容才能被正确加载。因为config的相关配置会先于application.properties，而bootstrap.properties的加载也是先于application.properties。
+  application:
+    name: api-gateway-dev #此名字要和git仓库中配置文件名字一致
+  rabbitmq:  #配置rabbitmq
+        host: localhost
+        port: 5672
+        username: guest
+        password: guest
+  datasource:
+      driver-class-name: org.postgresql.Driver
+      url: jdbc:postgresql://192.168.25.132:5432/activiti
+      username: pg01
+      password: 123456
+eureka:   #将配置中心 注册到eureka
+  client:
+    service-url:
+      defaultZone: http://localhost:1111/eureka/
+      #eureka client刷新本地缓存时间
+      #默认30setchIntervalSeconds=5
+    registry-fetch-interval-seconds: 5
+
+#eureka客户端ribbon刷新时间
+#默认30s
+ribbon:
+  ServerListRefreshInterval: 5000
+  ReadTimeout: 50000
+  ConnectTimeout: 50000
+
+
+
+
+
+#则需要在配置文件properties中新增：
+#忽略权限拦截
+management:
+  security:
+    enabled: false
+

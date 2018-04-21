@@ -1,0 +1,20 @@
+server:
+  port: 7700
+spring:
+  application:
+    name: service-register-management
+#thymeleaf start
+  thymeleaf:
+    mode: HTML5
+    encoding: UTF-8
+    content-type: text/html
+#开发时关闭缓存,不然没法看到实时页面
+    cache: false
+#thymeleaf end
+
+#eureka:
+#  instance:
+#    hostname: localhost
+#  client:
+#    service-url:
+#      defaultZone: http://localhost:1112/eureka/

@@ -1,0 +1,22 @@
+server.port: 7003
+spring:
+  cloud:
+    config:
+      profile: dev  #将配置放在这里才能加载配种中心的配置信息。
+      label: config-lable-test
+      uri: http://localhost:7001/
+      username: admin  #config 链接到配置中心 所需要的用户名 和密码
+      password: admin
+      fail-fast: true #失败快速响应  优先判断配置中心是否连接正常，并响应。
+      #特别注意：上面这些与spring-cloud相关的属性必须配置在bootstrap.properties中，config部分内容才能被正确加载。因为config的相关配置会先于application.properties，而bootstrap.properties的加载也是先于application.properties。
+  application:
+    name: api-gateway-dev #此名字要和git仓库中配置文件名字一致
+eureka:   #将配置中心 注册到eureka
+  client:
+    service-url:
+      defaultZone: http://localhost:1111/eureka/
+#则需要在配置文件properties中新增：
+#忽略权限拦截
+management:
+  security:
+    enabled: false

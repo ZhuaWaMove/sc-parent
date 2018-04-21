@@ -1,0 +1,40 @@
+server:
+  port: 7001
+spring:
+  application:
+    name: config-server
+    rabbitmq:  #配置rabbitmq 让配置中心发送GET  /bus/refresh的工作 这样每个客户端服务实例都是对等的
+          host: localhost
+          port: 5672
+          username: guest
+          password: guest
+  cloud:
+    config:
+      label: config-lable-test
+      server:
+        git:
+          uri: https://github.com/ZhuaWaMove/scconfig/ #远程仓库git地址
+          username: ZhuaWaMove
+          password: gyf1479347752
+          search-paths: sc-in-action/config-repo #指定配置文件存储目录
+          basedir: E:/PSBworkspace/localConfig  #指定本地仓库位置  可以将配置文件 检出到本地  在本地可以更新配置信息
+          force-pull: true  #如果 the working tree is not clean. ；本地仓库 脏了 就强制从远端拉取
+        health:  #配置通过连接check-pro-config进行健康监测   此功能没有调通
+          repositories:
+            check:
+              name: check-pro
+              label: config-lable-test
+              profiles: default
+#security: #安全保护 指定用户名和密码  客户端配置此参数才能登录
+#  user:
+#    name: admin
+#    password: admin
+#忽略权限拦截
+management:
+  security:
+    enabled: false
+
+eureka:   #将配置中心 注册到eureka
+  client:
+    service-url:
+      defaultZone: http://localhost:1111/eureka/

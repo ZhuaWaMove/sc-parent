@@ -1,0 +1,26 @@
+#zuul:
+#  ratelimit:
+#    key-prefix: my-retelimit  #限流配置名称
+#    enabled: true #启用网关限流
+#    repository: IN_MEMORY  #统计数据存储类型 大写
+#    behind-proxy: true #支持代理
+#    default-policy:
+#      limit: 50
+#      quota: 100
+#      refresh-interval: 3
+#    policy-list:  #Map of Lists of Policy
+#      hello-service: #限流配置名称
+#        limit: 100 #单位时间年内允许访问次数
+#        quota:   1000 #单位时间内允许访问的总时间(统计每次的请求时间综合)
+#        refresh-interval: 60 #设置单位时间
+#        type: origin  #限流粒度(类型)   60s内请求超过三次，服务端就抛出异常，一分钟后又可以正常请求
+#      trace-1: #限流配置名称
+#        limit: 100 #单位时间年内允许访问次数
+#        quota: 1000 #单位时间内允许访问的总时间(统计每次的请求时间综合)
+#        refresh-interval: 60 #设置单位时间
+#        type: origin  #限流粒度(类型)   60s内请求超过三次，服务端就抛出异常，一分钟后又可以正常请求
+#      trace-2:
+#        limit: 100 #单位时间年内允许访问次数
+#        quota:  1000 #单位时间内允许访问的总时间(统计每次的请求时间综合)
+#        refresh-interval: 60 #设置单位时间
+#        type: origin  #限流粒度(类型)   60s内请求超过三次，服务端就抛出异常，一分钟后又可以正常请求

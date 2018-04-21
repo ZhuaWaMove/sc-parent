@@ -1,0 +1,49 @@
+server:
+  port: 9002
+spring:
+  application:
+    name: api-gateway
+eureka: #将网关服务注册到eureka注册中心，并从注册中心获取获取所有服务以及实例它们的清单
+  client:
+    service-url:
+      defaultZone: http://localhost:1111/eureka/
+zuul:
+  routes:
+    api-a-url: #路由名称
+      path: /api-a-url/** #映射请求路径，最好与路由名称保持一致，清晰
+      url: http://localhost:1113/ #传统方式
+#    api-a:
+#      path: /api-a/**
+#      serviceId: hello-service #服务路由方式
+    hello-service: /api-c/** #等价于路由名称为api-a的另一种方式 zuul.routes.serviceId=path;
+    ribbonconsumer-v1: /ribbonConsumer-v1/**
+    api-b:
+      path: /api-b/**
+      customSensitiveHeaders: true
+      serviceId: feign-consumer
+
+#  ignored-services: '*' #只创建上述指定服务路由
+#服务路由默认规则：使用zuul.routes.serviceId=path; 其中path路径会使用serviceId配置的服务名称作为作为请求前缀。默认都是如此。
+#默认所有eureka上的所有服务都会被zuul自动创建映射关系，这样一些不想让外部访问的服务有可能被访问到，解决方法：
+#配置zuul.ignored-services:服务名称；zuul.ignored-services:*，zuul对所有服务都不进行自动创建路由规则，对需要进行路由的服务，单独配置zuul.routes.serviceId=path即可。
+#自定义路由规则：各个微服务都遵循一个命名规则例如 userservice-v1加了版本号的'服务名-服务版本号'，利益zuul本身具有的自定义服务与路由映射关系功能，来实现符合类似/v1/userservice/**的路由匹配规则。在API网关主程序中添加bean创建：PatternServiceRouteMapper  此时配置ignored-services: '*' 不可以为'*';
+
+#路径匹配：
+#路由规则匹配算法中，我们可以看到他在使用路由规则匹配请求路径的时候是通过线性遍历的方式在请求路径获取到第一个匹配的路由规则之后就返回并结束匹配过程。所以在存在多个  匹配的路由规则时，匹配结果完全取决于路由规则的保存顺序。
+#路由规则保存通过LinkendHashMap保存的，所以路由规则保存是有顺序的，而规则加载是通过遍历配置文件中的路由规则依次加入的，由于properties的配置内容无法保证有序性，所以为保证路由的优先顺序，我们需要使用yaml文件进行配置路由规则。
+#忽略表达式：
+#为了更细粒度和更灵活的配置路由规则，zuul提供了一个忽略表达式的配置参数。zuul.ignored-patterns,该参数用来忽略不希望被zuul路由的url路径。该参数适用范围是对所有的路由，而不是对某个路由进行忽略的。
+#路由前缀：
+#配置参数zuul.prefix用来全局的为路由规则增加前缀信息。使用此参数注意务必避免让路由表达式的其实字符串与此参数的值相同。
+#本地跳转
+#使用传统的路由配置，zuul.routes.api-b.path=/api-b/**;zuul.routes.api-b.url=forward:/local;当网关接收到请求/api-b/hello时，由于符合path路径，请求将会被转发到以/local为前缀的接口上，/local/hello,需要在网关服务上增加接口服务/local/hello。
+#cookie和头信息：
+#默认情况下zuul在路由请求时，会过滤掉http请求头中的敏感信息，防止传递到下游的外部服务器，到web应用使用到安全框架时，由于cookie信息无法传递，web应用将无法实现登录和鉴权，解决方法：方法1对指定路由开启自定义敏感头，zuul.routes.<router>.customSensitiveHeaders=true;方法2将指定路由的敏感头设置为空zuul.routes.<router>.customSensitiveHeaders=
+
+#核心过滤器   自定义异常信息：方式一直接定义一个过滤器来组织错误结果，简单粗暴，参考SendErrorFilter的实现，然后组织请求响应结果而不是forward到/error端点上，注意，为了替代SendErrorFilter需要禁用SendErrorFilter过滤器，在配置文件中配置参数。方式二不重写过滤器，依然使用SendErrorFilter过滤器，注意错误信息不是由Spring Cloud Zuul完成的，SendErrorFilter根据请求上下文中保存的错误信息来组织一个forward到/error端点的请求来获取错误响应。所以落脚点在/error端点的实现上。响应/error请求的端点在org.springframework.boot.autoconfigure.web.BasicErrorController类中，此类中有方法getErrorAttributes()获取错误信息,放入map中，进入此方法发现将获取错误信息的功能委托给org.springframework.boot.autoconfigure.web.ErrorAttributes提供的getErrorAttributes实现，此实现在org.springframework.boot.autoconfigure.web.DefaultErrorAttributes类中默认使用此类。在定义Error自动化配置类中发现@ConditionalOnMissingBean(value = ErrorAttributes.class, search = SearchStrategy.CURRENT)，说明在没有DefaultErrorAttributes对象实例尽在没有ErrorAttributes接口的实例时才会被创建来使用，因此只需要编写一个ErrorAttributes的自定义实现就可以替代这个默认的实现，从而达到自定义错误信息的效果。
+
+#禁用过滤器 配置参数：zuul.<SimpleClassName>.<FilterType>.disable=true; SimpleClassName:过滤器名称;filterType:过滤器类型；这样可以抛开zuul自带的一套过滤器，实现自己的一套过滤器处理机制。
+
+#动态加载  微服务架构中，由于API网关服务负担着外部访问统一入口的重任，和其它应用不同，任何重启服务和关闭服务都会导致系统对外服务停止。API服务必须具备动态更新内部逻辑的能力，动态修改路由规则，动态添加/删除过滤器等。 zuul实现动态API网关服务。
+#动态路由 可以与Spring Cloud Config的动态刷新机制联系到一起。  将API网关的配置文件通过Spring Cloud Config链接到Git仓库存储和管理。注意在API服务主类中创建bean， ZuulPropreties zuulPropreties();在此方法上添加注解@RefreshScope 将zuul的配置内容动态化和 @ConfigrationPropreties("zuul") 和 @Bean;配置文件名字和spring.application.name一致。
+#动态过滤器  实现动态过滤器需要结合基于JVM实现的动态语言的帮助。如Grrooy;  配置动态加载过滤器的参数zuul.filter.root=动态过滤器文件所在路径；zuul.filter.interval=5 5秒后刷新动态过滤器；创建用来加载自定义属性的配置类，使用注解@ConfigurationProperties("zuul.filter")注解内内容对应配置文件中zuul.filter;对属性值提供get/set，启动程序就会加载zuul.filter对应的属性；在主类中添加@Bean FilterLoader ;动态过滤器文件命名后缀为.groovy;

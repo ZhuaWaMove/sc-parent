@@ -1,0 +1,10 @@
+server:
+  port: 7003
+spring:
+  application:
+    name: rabbitmq-hello
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest

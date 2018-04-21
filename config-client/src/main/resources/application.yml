@@ -1,0 +1,20 @@
+server:
+  port: 7002
+spring:
+  application:
+    name: didispace
+  rabbitmq:
+      host: localhost
+      port: 5672
+      username: guest
+      password: guest
+eureka:   #将配置中心 注册到eureka
+  client:
+    service-url:
+      defaultZone: http://localhost:1111/eureka/
+#则需要在配置文件properties中新增：
+#忽略权限拦截
+management:
+  security:
+    enabled: false
+
