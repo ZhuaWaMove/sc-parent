@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
  * Created by GL-shala on 2018/4/17.
  */
 @SpringBootApplication
-@EnableConfigurationProperties({CxfConfig.class})
-@ComponentScan(value = "service")
+//@EnableConfigurationProperties({CxfConfig.class})
+@ComponentScan( "config")
 public class WsServerApp {
 
     public static void main(String[] args) {

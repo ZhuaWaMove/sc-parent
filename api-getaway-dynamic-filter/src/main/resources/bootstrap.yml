@@ -78,10 +78,14 @@ spring:
       password: 123456
 eureka:   #将配置中心 注册到eureka
   client:
+    region: BJ1 #区域
+    availability-zones: #机房
+      BJ1: YZ1,YZ2,YZ3
     service-url:
       defaultZone: http://localhost:1111/eureka/
       #eureka client刷新本地缓存时间
       #默认30setchIntervalSeconds=5
+      YZ1: http://localhost:1112/eureka/
     registry-fetch-interval-seconds: 5
 
 #eureka客户端ribbon刷新时间

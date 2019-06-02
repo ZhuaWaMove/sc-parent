@@ -28,6 +28,12 @@
         <module>sc-commen</module>
         <module>webservice-jax_rs</module>
         <module>webservice-jax_ws</module>
+        <module>netty</module>
+        <module>jdbcTemplate</module>
+        <module>threads</module>
+        <module>jasypt-spring-boot</module>
+        <module>rxjava</module>
+        <module>tree</module>
     </modules>
 
     <parent>
