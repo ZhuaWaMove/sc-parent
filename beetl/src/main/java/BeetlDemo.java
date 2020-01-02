@@ -22,9 +22,9 @@ import java.util.Map;
 /**
  * Created by GL-shala on 2019/6/2.
  */
-public class BeetlDemo{
+public class BeetlDemo {
 
-    private static  final GroupTemplate gt;
+    private static final GroupTemplate gt;
 
 
     static {
@@ -37,20 +37,22 @@ public class BeetlDemo{
         }
         gt = new GroupTemplate(resourceLoader, cfg);
     }
+
     public static void main(String[] args) throws Exception {
 
 
-        StringTest();
+//        StringTest();
 
 
         queryEs();
 
 
-        validateTemplate();
+//        validateTemplate();
 
 
     }
-   //简单测试
+
+    //简单测试
     private static void StringTest() {
         Template t = gt.getTemplate("hello,${name}");
         t.binding("name", "beetl");
@@ -64,11 +66,16 @@ public class BeetlDemo{
         //加载模板文件
         ClasspathResourceLoader rl = new ClasspathResourceLoader("/");
         Template template = gt.getTemplate("/beet1.ftl", rl);
+        BeetlException exception = template.validate();
+        gt.validateTemplate("");
         Map<String, List> param = new HashMap<>();
         List<String> list = new ArrayList<>();
         list.add("\"ss\"");
         list.add("\"ff\"");
         param.put("index", list);
+        param.put("c", list);
+        template.binding("_temp", "*");
+
         //绑定参数
         template.binding(param);
         String render = template.render();
@@ -94,12 +101,14 @@ public class BeetlDemo{
         ClasspathResourceLoader rl = new ClasspathResourceLoader("/");
         //校验模板
         BeetlException ex = gt.validateTemplate("/beet1.ftl", rl);
-        if(ex!=null){
+        if (ex != null) {
             ErrorInfo error = new ErrorInfo(ex);
             int line = error.getErrorTokenLine();
-            String errorToken = error.getErrorTokenText();
+            String errorTokenText = error.getErrorTokenText();
             String type = error.getType();
-            System.out.println(line+type+errorToken);
+            String errorCode = error.getErrorCode();
+            System.out.println(line + "|" + type + "|" + errorTokenText + "|" + errorCode);
+
         }
     }
 

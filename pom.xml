@@ -33,7 +33,9 @@
         <module>threads</module>
         <module>jasypt-spring-boot</module>
         <module>rxjava</module>
+        <module>mybatis</module>
         <module>tree</module>
+        <module>es</module>
     </modules>
 
     <parent>
@@ -41,6 +43,7 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <!--<version>2.0.0.RELEASE</version>-->
         <version>1.5.9.RELEASE</version>
+
     </parent>
     <dependencyManagement>
         <dependencies>
