@@ -15,6 +15,12 @@
         <module>ribbon-consumer</module>
         <module>feign-consumer</module>
         <module>api-gateway</module>
+        <module>drools</module>
+        <module>aviator</module>
+        <module>threads</module>
+        <module>tomcat</module>
+        <module>beetl</module>
+        <module>geek-time</module>
         <module>config-server</module>
         <module>config-client</module>
         <module>rabbitmq-hello</module>
@@ -35,6 +41,7 @@
         <module>mybatis</module>
         <module>tree</module>
         <module>es</module>
+        <module>FuncProgram</module>
     </modules>
 
     <parent>
@@ -42,8 +49,10 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <!--<version>2.0.0.RELEASE</version>-->
         <version>1.5.9.RELEASE</version>
-
     </parent>
+    <properties>
+      <lombok.version>1.18.8</lombok.version>
+    </properties>
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -56,6 +65,13 @@
 
         </dependencies>
     </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+        </dependency>
+    </dependencies>
     <!--Error:java: Compilation failed: internal java compiler error-->
     <build>
         <plugins>
